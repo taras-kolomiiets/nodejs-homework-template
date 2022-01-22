@@ -1,5 +1,5 @@
 const express = require("express");
-const createError = require("http-errors");
+const CreateError = require("http-errors");
 const Joi = require("joi");
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.get("/:contactId", async (req, res, next) => {
 	try {
 		const contact = await contacts.getContactById(req.params.contactId);
 		if (!contact) {
-			throw new createError(404, "Not found");
+			throw new CreateError(404, "Not found");
 		}
 		res.json(contact);
 	} catch (error) {
@@ -39,7 +39,7 @@ router.post("/", async (req, res, next) => {
 		const { error } = ContactSchema.validate(req.body);
 		const newContact = await contacts.addContact(req.body);
 		if (error) {
-			throw new createError(400, "missing required name field");
+			throw new CreateError(400, "missing required name field");
 		}
 		res.status(201).json(newContact);
 	} catch (error) {
@@ -51,7 +51,7 @@ router.delete("/:contactId", async (req, res, next) => {
 	try {
 		const removedContact = await contacts.removeContact(req.params.contactId);
 		if (!removedContact) {
-			throw new createError(404, "Not found");
+			throw new CreateError(404, "Not found");
 		}
 		res.json({ message: "contact deleted" });
 	} catch (error) {
@@ -63,7 +63,7 @@ router.put("/:contactId", async (req, res, next) => {
 	try {
 		const { error } = ContactSchema.validate(req.body);
 		if (error) {
-			throw new createError(400, "missing fields");
+			throw new CreateError(400, "missing fields");
 		}
 
 		const updatedContact = await contacts.updateContact(
@@ -72,7 +72,7 @@ router.put("/:contactId", async (req, res, next) => {
 		);
 
 		if (!updatedContact) {
-			throw new createError(404, "Not found");
+			throw new CreateError(404, "Not found");
 		}
 
 		res.json(updatedContact);
