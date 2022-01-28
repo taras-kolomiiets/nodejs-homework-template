@@ -1,5 +1,6 @@
 const express = require("express");
 const { NotFound, BadRequest } = require("http-errors");
+const ObjectId = require("mongoose").Types.ObjectId;
 const router = express.Router();
 
 const { Contact, joiSchema, favoriteJoiSchema } = require("../../models");
@@ -21,6 +22,10 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:contactId", async (req, res, next) => {
 	try {
+		const isValidId = ObjectId.isValid(req.params.contactId);
+		if (!isValidId) {
+			throw new BadRequest("Invalid id");
+		}
 		const contact = await Contact.findById(req.params.contactId);
 		if (!contact) {
 			throw new NotFound("Not found");
@@ -58,6 +63,10 @@ router.post("/", async (req, res, next) => {
 
 router.delete("/:contactId", async (req, res, next) => {
 	try {
+		const isValidId = ObjectId.isValid(req.params.contactId);
+		if (!isValidId) {
+			throw new BadRequest("Invalid id");
+		}
 		const removedContact = await Contact.findByIdAndDelete(
 			req.params.contactId
 		);
@@ -78,6 +87,10 @@ router.delete("/:contactId", async (req, res, next) => {
 
 router.put("/:contactId", async (req, res, next) => {
 	try {
+		const isValidId = ObjectId.isValid(req.params.contactId);
+		if (!isValidId) {
+			throw new BadRequest("Invalid id");
+		}
 		const { error } = joiSchema.validate(req.body);
 		if (error) {
 			throw new BadRequest("missing fields");
@@ -107,6 +120,10 @@ router.put("/:contactId", async (req, res, next) => {
 
 router.patch("/:contactId/favorite", async (req, res, next) => {
 	try {
+		const isValidId = ObjectId.isValid(req.params.contactId);
+		if (!isValidId) {
+			throw new BadRequest("Invalid id");
+		}
 		const { error } = favoriteJoiSchema.validate(req.body);
 		if (error) {
 			throw new BadRequest("missing field favorite");
