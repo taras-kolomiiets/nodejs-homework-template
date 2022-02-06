@@ -5,9 +5,22 @@ const router = express.Router();
 
 const { Contact, joiSchema, favoriteJoiSchema } = require("../../models");
 
-router.get("/", async (req, res, next) => {
+const { authenticate } = require("../../middlewares");
+
+router.get("/", authenticate, async (req, res, next) => {
 	try {
-		const result = await Contact.find({});
+		const { _id } = req.user;
+		const { page = 1, limit = 10, favorite } = req.query;
+		const skip = (page - 1) * limit;
+		const result = favorite
+			? await Contact.find({ owner: _id })
+					.select({ favorite: true })
+					.populate("owner", "_id name email")
+			: await Contact.find({ owner: _id }, "", {
+					skip,
+					limit: Number(limit),
+			  }).populate("owner", "_id name email");
+
 		res.json({
 			status: "success",
 			code: 200,
@@ -42,10 +55,11 @@ router.get("/:contactId", async (req, res, next) => {
 	}
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", authenticate, async (req, res, next) => {
 	try {
+		const { _id } = req.user;
 		const { error } = joiSchema.validate(req.body);
-		const newContact = await Contact.create(req.body);
+		const newContact = await Contact.create({ ...req.body, owner: _id });
 		if (error) {
 			throw new BadRequest("missing required name field");
 		}
