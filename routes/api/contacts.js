@@ -12,14 +12,13 @@ router.get("/", authenticate, async (req, res, next) => {
 		const { _id } = req.user;
 		const { page = 1, limit = 10, favorite } = req.query;
 		const skip = (page - 1) * limit;
-		const result = favorite
-			? await Contact.find({ owner: _id })
-					.select({ favorite: true })
-					.populate("owner", "_id name email")
-			: await Contact.find({ owner: _id }, "", {
-					skip,
-					limit: Number(limit),
-			  }).populate("owner", "_id name email");
+
+		const query = favorite ? { owner: _id, favorite } : { owner: _id };
+
+		const result = await Contact.find(query, "", {
+			skip,
+			limit: Number(limit),
+		}).populate("owner", "_id name email");
 
 		res.json({
 			status: "success",
@@ -33,7 +32,7 @@ router.get("/", authenticate, async (req, res, next) => {
 	}
 });
 
-router.get("/:contactId", async (req, res, next) => {
+router.get("/:contactId", authenticate, async (req, res, next) => {
 	try {
 		const isValidId = ObjectId.isValid(req.params.contactId);
 		if (!isValidId) {
@@ -75,7 +74,7 @@ router.post("/", authenticate, async (req, res, next) => {
 	}
 });
 
-router.delete("/:contactId", async (req, res, next) => {
+router.delete("/:contactId", authenticate, async (req, res, next) => {
 	try {
 		const isValidId = ObjectId.isValid(req.params.contactId);
 		if (!isValidId) {
@@ -99,7 +98,7 @@ router.delete("/:contactId", async (req, res, next) => {
 	}
 });
 
-router.put("/:contactId", async (req, res, next) => {
+router.put("/:contactId", authenticate, async (req, res, next) => {
 	try {
 		const isValidId = ObjectId.isValid(req.params.contactId);
 		if (!isValidId) {
@@ -132,7 +131,7 @@ router.put("/:contactId", async (req, res, next) => {
 	}
 });
 
-router.patch("/:contactId/favorite", async (req, res, next) => {
+router.patch("/:contactId/favorite", authenticate, async (req, res, next) => {
 	try {
 		const isValidId = ObjectId.isValid(req.params.contactId);
 		if (!isValidId) {
