@@ -11,13 +11,13 @@ const signup = async (req, res, next) => {
 			throw new BadRequest("missing required name field");
 		}
 		const { email, password } = req.body;
-		const user = await User.findOne({ email });
+		const user = await User.findOne({ email }).lean().exec();
 		if (user) {
 			throw new Conflict("Email in use");
 		}
 
 		const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-		const avatarURL = gravatar.url(email);
+		const avatarURL = gravatar.url(email, { protocol: "http" });
 
 		const result = await User.create({
 			email,

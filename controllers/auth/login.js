@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { BadRequest, Unauthorized } = require("http-errors");
+const { BadRequest, Unauthorized, NotFound } = require("http-errors");
 
 const { SECRET_KEY } = process.env;
 
@@ -13,9 +13,15 @@ const login = async (req, res, next) => {
 			throw new BadRequest("missing required name field");
 		}
 		const { email, password } = req.body;
-		const user = await User.findOne({ email });
+
+		const user = await User.findOne({ email }).lean().exec();
+
+		if (!user) {
+			throw new NotFound("User not found");
+		}
+
 		const passCompare = bcrypt.compareSync(password, user.password);
-		if (!user || !passCompare) {
+		if (!passCompare) {
 			throw new Unauthorized("Email or password is wrong");
 		}
 
@@ -25,9 +31,8 @@ const login = async (req, res, next) => {
 		const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "1h" });
 		await User.findByIdAndUpdate(user._id, { token });
 
-		res.status(200).json({
+		res.json({
 			status: "success",
-			code: 200,
 			data: {
 				token,
 				user: {

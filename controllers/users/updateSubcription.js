@@ -16,7 +16,9 @@ const updateSubcription = async (req, res, next) => {
 			req.user._id,
 			{ subscription },
 			{ new: true }
-		);
+		)
+			.lean()
+			.exec();
 
 		if (!updatedUser) {
 			throw new NotFound("Not found");

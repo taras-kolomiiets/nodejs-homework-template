@@ -4,6 +4,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const { Contact, joiSchema } = require("../../models");
 
 const update = async (req, res, next) => {
+	const { _id } = req.user;
 	try {
 		const isValidId = ObjectId.isValid(req.params.contactId);
 		if (!isValidId) {
@@ -14,11 +15,13 @@ const update = async (req, res, next) => {
 			throw new BadRequest("missing fields");
 		}
 
-		const updatedContact = await Contact.findByIdAndUpdate(
-			req.params.contactId,
+		const updatedContact = await Contact.findOneAndUpdate(
+			{ _id: req.params.contactId, owner: _id },
 			req.body,
 			{ new: true }
-		);
+		)
+			.lean()
+			.exec();
 
 		if (!updatedContact) {
 			throw new NotFound("Not found");

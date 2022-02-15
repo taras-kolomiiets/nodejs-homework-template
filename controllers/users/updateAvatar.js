@@ -20,8 +20,8 @@ const updateAvatar = async (req, res, next) => {
 
 		await fs.unlink(tempUpload);
 
-		const avatarURL = path.join("avatars", newFilename);
-		await User.findByIdAndUpdate(_id, { avatarURL });
+		const avatarURL = path.join("public", "avatars", newFilename);
+		await User.findByIdAndUpdate(_id, { avatarURL }).lean().exec();
 		res.json({
 			status: "success",
 			code: 200,

@@ -4,14 +4,18 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const { Contact } = require("../../models");
 
 const deleteContact = async (req, res, next) => {
+	const { _id } = req.user;
 	try {
 		const isValidId = ObjectId.isValid(req.params.contactId);
 		if (!isValidId) {
 			throw new BadRequest("Invalid id");
 		}
-		const removedContact = await Contact.findByIdAndDelete(
-			req.params.contactId
-		);
+		const removedContact = await Contact.findOneAndRemove({
+			_id: req.params.contactId,
+			owner: _id,
+		})
+			.lean()
+			.exec();
 		if (!removedContact) {
 			throw new NotFound("Not found");
 		}

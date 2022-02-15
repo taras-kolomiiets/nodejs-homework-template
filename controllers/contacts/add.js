@@ -5,7 +5,9 @@ const add = async (req, res, next) => {
 	try {
 		const { _id } = req.user;
 		const { error } = joiSchema.validate(req.body);
-		const newContact = await Contact.create({ ...req.body, owner: _id });
+		const newContact = await Contact.create({ ...req.body, owner: _id })
+			.lean()
+			.exec();
 		if (error) {
 			throw new BadRequest("missing required name field");
 		}
