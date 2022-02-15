@@ -21,15 +21,16 @@ const userSchema = Schema(
 			type: String,
 			default: null,
 		},
+		avatarURL: {
+			type: String,
+		},
 	},
 	{ versionKey: false, timestamps: true }
 );
 
 const joiSignupSchema = Joi.object({
 	email: Joi.string().email().required(),
-
 	password: Joi.string().min(6).required(),
-
 	subscription: Joi.string().valid("starter", "pro", "business"),
 });
 
@@ -39,4 +40,8 @@ const subscriptionJoiSchema = Joi.object({
 
 const User = model("user", userSchema);
 
-module.exports = { User, joiSignupSchema, subscriptionJoiSchema };
+module.exports = {
+	User,
+	joiSignupSchema,
+	subscriptionJoiSchema,
+};
